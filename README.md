@@ -1,8 +1,6 @@
 # Jack Tetris
 
-Классический **Тетрис** на языке Jack (курс [Nand2Tetris](https://www.nand2tetris.org/)).
-
-**Репозиторий:** https://github.com/lovesomemommy/jack-tetris-game
+Классический **Тетрис** на языке Jack.
 
 ## Запуск
 
