@@ -1,0 +1,72 @@
+/**
+ * Падающая фигура тетриса.
+ */
+class Piece {
+
+    field int type;
+    field int rotation;
+    field int x;
+    field int y;
+
+    constructor Piece new(int aType, int startX, int startY) {
+        let type = aType;
+        let rotation = 0;
+        let x = startX;
+        let y = startY;
+        return this;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method int getType() {
+        return type;
+    }
+
+    method int getBlockCol(int block) {
+        return x + TetrominoData.getDx(type, rotation, block);
+    }
+
+    method int getBlockRow(int block) {
+        return y + TetrominoData.getDy(type, rotation, block);
+    }
+
+    method void move(int dx, int dy) {
+        let x = x + dx;
+        let y = y + dy;
+        return;
+    }
+
+    method void rotate() {
+        let rotation = rotation + 1;
+        if (rotation > 3) {
+            let rotation = 0;
+        }
+        return;
+    }
+
+    method void setPosition(int newX, int newY) {
+        let x = newX;
+        let y = newY;
+        return;
+    }
+
+    method void setRotation(int rot) {
+        let rotation = rot;
+        return;
+    }
+
+    method int getX() {
+        return x;
+    }
+
+    method int getY() {
+        return y;
+    }
+
+    method int getRotation() {
+        return rotation;
+    }
+}

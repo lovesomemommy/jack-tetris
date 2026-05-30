@@ -1,0 +1,41 @@
+/**
+ * Случайная фигура 0..6. Без multiply-переполнения.
+ */
+class Random {
+
+    static int seed;
+    static int pick;
+
+    function void setSeed(int value) {
+        let seed = value;
+        if (seed < 0) {
+            let seed = -seed;
+        }
+        if (seed = 0) {
+            let seed = 12345;
+        }
+        let pick = 0;
+        return;
+    }
+
+    function int next() {
+        let seed = Math.multiply(seed, 25173);
+        let seed = seed + 13849;
+        let seed = seed & 32767;
+        return seed;
+    }
+
+    function int range(int minVal, int maxVal) {
+        var int slot;
+        let pick = pick + 1;
+        let slot = Math.divide(Random.next(), 4681);
+        if (slot > 6) {
+            let slot = 6;
+        }
+        let slot = slot + (pick & 1);
+        if (slot > 6) {
+            let slot = slot - 7;
+        }
+        return minVal + slot;
+    }
+}

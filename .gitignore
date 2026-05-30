@@ -1,0 +1,8 @@
+# Jack compiler output in src/ (vm/ holds the runnable build)
+src/*.vm
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+*.swp
+*~

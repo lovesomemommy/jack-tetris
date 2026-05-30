@@ -1,0 +1,284 @@
+/**
+ * Игровой цикл тетриса.
+ */
+class TetrisGame {
+
+    field Board board;
+    field Piece current;
+    field int nextType;
+    field int score;
+    field int lines;
+    field int level;
+    field int dropDelay;
+    field int dropCounter;
+    field boolean gameOver;
+    field boolean boardDirty;
+    field boolean displayDirty;
+
+    constructor TetrisGame new() {
+        do TetrominoData.init();
+        do Renderer.init();
+        do Random.setSeed(24680);
+        let board = Board.new();
+        let score = 0;
+        let lines = 0;
+        let level = 1;
+        let dropDelay = 22;
+        let dropCounter = 0;
+        let gameOver = false;
+        let boardDirty = false;
+        let displayDirty = true;
+        let nextType = Random.range(0, 6);
+        let current = spawnPiece();
+        return this;
+    }
+
+    method void dispose() {
+        do current.dispose();
+        do board.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method Piece spawnPiece() {
+        var Piece piece;
+        var int type;
+        let type = nextType;
+        let nextType = Random.range(0, 6);
+        let piece = Piece.new(type, 3, 0);
+        return piece;
+    }
+
+    method void resetRound() {
+        do board.clear();
+        let score = 0;
+        let lines = 0;
+        let level = 1;
+        let dropDelay = 22;
+        let dropCounter = 0;
+        let gameOver = false;
+        let boardDirty = false;
+        let displayDirty = true;
+        do current.dispose();
+        let nextType = Random.range(0, 6);
+        let current = spawnPiece();
+        return;
+    }
+
+    method boolean tryMove(int dx, int dy) {
+        do current.move(dx, dy);
+        if (board.fits(current)) {
+            let displayDirty = true;
+            return true;
+        }
+        do current.move(-dx, -dy);
+        return false;
+    }
+
+    method boolean tryRotate() {
+        var int oldRot;
+        var int px;
+        var int py;
+        let oldRot = current.getRotation();
+        let px = current.getX();
+        let py = current.getY();
+        do current.rotate();
+        if (board.fits(current)) {
+            let displayDirty = true;
+            return true;
+        }
+        do current.move(1, 0);
+        if (board.fits(current)) {
+            let displayDirty = true;
+            return true;
+        }
+        do current.move(-2, 0);
+        if (board.fits(current)) {
+            let displayDirty = true;
+            return true;
+        }
+        do current.setRotation(oldRot);
+        do current.setPosition(px, py);
+        return false;
+    }
+
+    method void addLineScore(int cleared) {
+        if (cleared = 1) {
+            let score = score + 100;
+        }
+        if (cleared = 2) {
+            let score = score + 300;
+        }
+        if (cleared = 3) {
+            let score = score + 500;
+        }
+        if (cleared = 4) {
+            let score = score + 800;
+        }
+        return;
+    }
+
+    method void lockCurrent() {
+        var int cleared;
+        do board.lock(current);
+        let cleared = board.clearFullLines();
+        if (cleared > 0) {
+            let lines = lines + cleared;
+            do addLineScore(cleared);
+            let boardDirty = true;
+            let displayDirty = true;
+            let level = Math.divide(lines, 5) + 1;
+            let dropDelay = 22 - Math.multiply(level, 2);
+            if (dropDelay < 5) {
+                let dropDelay = 5;
+            }
+        }
+        do current.dispose();
+        let current = spawnPiece();
+        let displayDirty = true;
+        do Renderer.invalidateNext();
+        if (~board.fits(current)) {
+            let gameOver = true;
+        }
+        return;
+    }
+
+    method void hardDrop() {
+        var boolean moved;
+        let moved = true;
+        while (moved) {
+            let moved = tryMove(0, 1);
+            if (moved) {
+                let score = score + 2;
+            }
+        }
+        do lockCurrent();
+        return;
+    }
+
+    method void handleKey(char key) {
+        if (key = 81) {
+            let gameOver = true;
+            let displayDirty = true;
+        }
+        if (key = 130) {
+            do tryMove(-1, 0);
+        }
+        if (key = 132) {
+            do tryMove(1, 0);
+        }
+        if (key = 133) {
+            if (~tryMove(0, 1)) {
+                do lockCurrent();
+            } else {
+                let score = score + 1;
+            }
+        }
+        if (key = 131) {
+            do tryRotate();
+        }
+        if (key = 32) {
+            do hardDrop();
+        }
+        return;
+    }
+
+    method void tick() {
+        let dropCounter = dropCounter + 1;
+        if (dropCounter > dropDelay) {
+            let dropCounter = 0;
+            if (~tryMove(0, 1)) {
+                do lockCurrent();
+            } else {
+                let displayDirty = true;
+            }
+        }
+        return;
+    }
+
+    method void refreshDisplay() {
+        if (~displayDirty) {
+            return;
+        }
+        if (boardDirty) {
+            do Renderer.redrawBoard(board);
+            let boardDirty = false;
+        }
+        do Renderer.updatePiece(board, current);
+        do Renderer.drawNext(nextType);
+        do Renderer.showPieceNames(current.getType(), nextType);
+        let displayDirty = false;
+        return;
+    }
+
+    method void waitForRelease() {
+        var char key;
+        let key = Keyboard.keyPressed();
+        while (~(key = 0)) {
+            let key = Keyboard.keyPressed();
+            do Sys.wait(20);
+        }
+        return;
+    }
+
+    method void waitRestart() {
+        var char key;
+        let key = 0;
+        while (key = 0) {
+            let key = Keyboard.keyPressed();
+            if ((key = 81) | (key = 128) | (key = 32)) {
+                do waitForRelease();
+                return;
+            }
+            do Sys.wait(40);
+        }
+        return;
+    }
+
+    method void playRound() {
+        var char key;
+        var int prevScore;
+        var int prevLines;
+        var int prevLevel;
+        do Renderer.initScene(board, current, nextType);
+        do Renderer.showHud(score, lines, level);
+        let displayDirty = false;
+        let prevScore = score;
+        let prevLines = lines;
+        let prevLevel = level;
+
+        while (~gameOver) {
+            let key = Keyboard.keyPressed();
+            if (~(key = 0)) {
+                do handleKey(key);
+                do waitForRelease();
+            }
+
+            do tick();
+            do refreshDisplay();
+
+            if (~((prevScore = score) & (prevLines = lines) & (prevLevel = level))) {
+                do Renderer.showHud(score, lines, level);
+                let prevScore = score;
+                let prevLines = lines;
+                let prevLevel = level;
+            }
+
+            do Sys.wait(40);
+        }
+
+        do Renderer.showGameOver(score);
+        return;
+    }
+
+    method void run() {
+        var boolean running;
+        let running = true;
+        while (running) {
+            do resetRound();
+            do playRound();
+            do waitRestart();
+        }
+        return;
+    }
+}

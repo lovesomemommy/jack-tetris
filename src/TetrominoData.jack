@@ -1,0 +1,146 @@
+/**
+ * Координаты блоков фигур: type 0..6, rotation 0..3, block 0..3.
+ */
+class TetrominoData {
+
+    static Array dx;
+    static Array dy;
+
+    function void init() {
+        let dx = Array.new(112);
+        let dy = Array.new(112);
+        do TetrominoData.store(0, 0, 0, 0, 1);
+        do TetrominoData.store(0, 0, 1, 1, 1);
+        do TetrominoData.store(0, 0, 2, 2, 1);
+        do TetrominoData.store(0, 0, 3, 3, 1);
+        do TetrominoData.store(0, 1, 0, 2, 0);
+        do TetrominoData.store(0, 1, 1, 2, 1);
+        do TetrominoData.store(0, 1, 2, 2, 2);
+        do TetrominoData.store(0, 1, 3, 2, 3);
+        do TetrominoData.store(0, 2, 0, 0, 2);
+        do TetrominoData.store(0, 2, 1, 1, 2);
+        do TetrominoData.store(0, 2, 2, 2, 2);
+        do TetrominoData.store(0, 2, 3, 3, 2);
+        do TetrominoData.store(0, 3, 0, 1, 0);
+        do TetrominoData.store(0, 3, 1, 1, 1);
+        do TetrominoData.store(0, 3, 2, 1, 2);
+        do TetrominoData.store(0, 3, 3, 1, 3);
+        do TetrominoData.store(1, 0, 0, 0, 0);
+        do TetrominoData.store(1, 0, 1, 1, 0);
+        do TetrominoData.store(1, 0, 2, 0, 1);
+        do TetrominoData.store(1, 0, 3, 1, 1);
+        do TetrominoData.store(1, 1, 0, 0, 0);
+        do TetrominoData.store(1, 1, 1, 1, 0);
+        do TetrominoData.store(1, 1, 2, 0, 1);
+        do TetrominoData.store(1, 1, 3, 1, 1);
+        do TetrominoData.store(1, 2, 0, 0, 0);
+        do TetrominoData.store(1, 2, 1, 1, 0);
+        do TetrominoData.store(1, 2, 2, 0, 1);
+        do TetrominoData.store(1, 2, 3, 1, 1);
+        do TetrominoData.store(1, 3, 0, 0, 0);
+        do TetrominoData.store(1, 3, 1, 1, 0);
+        do TetrominoData.store(1, 3, 2, 0, 1);
+        do TetrominoData.store(1, 3, 3, 1, 1);
+        do TetrominoData.store(2, 0, 0, 1, 0);
+        do TetrominoData.store(2, 0, 1, 0, 1);
+        do TetrominoData.store(2, 0, 2, 1, 1);
+        do TetrominoData.store(2, 0, 3, 2, 1);
+        do TetrominoData.store(2, 1, 0, 1, 0);
+        do TetrominoData.store(2, 1, 1, 1, 1);
+        do TetrominoData.store(2, 1, 2, 2, 1);
+        do TetrominoData.store(2, 1, 3, 1, 2);
+        do TetrominoData.store(2, 2, 0, 0, 1);
+        do TetrominoData.store(2, 2, 1, 1, 1);
+        do TetrominoData.store(2, 2, 2, 2, 1);
+        do TetrominoData.store(2, 2, 3, 1, 2);
+        do TetrominoData.store(2, 3, 0, 1, 0);
+        do TetrominoData.store(2, 3, 1, 0, 1);
+        do TetrominoData.store(2, 3, 2, 1, 1);
+        do TetrominoData.store(2, 3, 3, 1, 2);
+        do TetrominoData.store(3, 0, 0, 1, 0);
+        do TetrominoData.store(3, 0, 1, 2, 0);
+        do TetrominoData.store(3, 0, 2, 0, 1);
+        do TetrominoData.store(3, 0, 3, 1, 1);
+        do TetrominoData.store(3, 1, 0, 1, 0);
+        do TetrominoData.store(3, 1, 1, 1, 1);
+        do TetrominoData.store(3, 1, 2, 2, 1);
+        do TetrominoData.store(3, 1, 3, 2, 2);
+        do TetrominoData.store(3, 2, 0, 0, 1);
+        do TetrominoData.store(3, 2, 1, 1, 1);
+        do TetrominoData.store(3, 2, 2, 2, 1);
+        do TetrominoData.store(3, 2, 3, 1, 2);
+        do TetrominoData.store(3, 3, 0, 0, 0);
+        do TetrominoData.store(3, 3, 1, 0, 1);
+        do TetrominoData.store(3, 3, 2, 1, 1);
+        do TetrominoData.store(3, 3, 3, 1, 2);
+        do TetrominoData.store(4, 0, 0, 0, 0);
+        do TetrominoData.store(4, 0, 1, 1, 0);
+        do TetrominoData.store(4, 0, 2, 1, 1);
+        do TetrominoData.store(4, 0, 3, 2, 1);
+        do TetrominoData.store(4, 1, 0, 2, 0);
+        do TetrominoData.store(4, 1, 1, 1, 1);
+        do TetrominoData.store(4, 1, 2, 2, 1);
+        do TetrominoData.store(4, 1, 3, 1, 2);
+        do TetrominoData.store(4, 2, 0, 0, 1);
+        do TetrominoData.store(4, 2, 1, 1, 1);
+        do TetrominoData.store(4, 2, 2, 1, 2);
+        do TetrominoData.store(4, 2, 3, 2, 2);
+        do TetrominoData.store(4, 3, 0, 1, 0);
+        do TetrominoData.store(4, 3, 1, 0, 1);
+        do TetrominoData.store(4, 3, 2, 1, 1);
+        do TetrominoData.store(4, 3, 3, 0, 2);
+        do TetrominoData.store(5, 0, 0, 2, 0);
+        do TetrominoData.store(5, 0, 1, 0, 1);
+        do TetrominoData.store(5, 0, 2, 1, 1);
+        do TetrominoData.store(5, 0, 3, 2, 1);
+        do TetrominoData.store(5, 1, 0, 1, 0);
+        do TetrominoData.store(5, 1, 1, 1, 1);
+        do TetrominoData.store(5, 1, 2, 1, 2);
+        do TetrominoData.store(5, 1, 3, 2, 2);
+        do TetrominoData.store(5, 2, 0, 0, 1);
+        do TetrominoData.store(5, 2, 1, 1, 1);
+        do TetrominoData.store(5, 2, 2, 2, 1);
+        do TetrominoData.store(5, 2, 3, 0, 2);
+        do TetrominoData.store(5, 3, 0, 0, 0);
+        do TetrominoData.store(5, 3, 1, 1, 0);
+        do TetrominoData.store(5, 3, 2, 1, 1);
+        do TetrominoData.store(5, 3, 3, 1, 2);
+        do TetrominoData.store(6, 0, 0, 0, 0);
+        do TetrominoData.store(6, 0, 1, 1, 0);
+        do TetrominoData.store(6, 0, 2, 2, 0);
+        do TetrominoData.store(6, 0, 3, 1, 1);
+        do TetrominoData.store(6, 1, 0, 2, 0);
+        do TetrominoData.store(6, 1, 1, 2, 1);
+        do TetrominoData.store(6, 1, 2, 1, 1);
+        do TetrominoData.store(6, 1, 3, 1, 2);
+        do TetrominoData.store(6, 2, 0, 0, 1);
+        do TetrominoData.store(6, 2, 1, 1, 1);
+        do TetrominoData.store(6, 2, 2, 2, 1);
+        do TetrominoData.store(6, 2, 3, 1, 2);
+        do TetrominoData.store(6, 3, 0, 1, 0);
+        do TetrominoData.store(6, 3, 1, 0, 1);
+        do TetrominoData.store(6, 3, 2, 1, 1);
+        do TetrominoData.store(6, 3, 3, 1, 2);
+        return;
+    }
+
+    function void store(int type, int rot, int block, int x, int y) {
+        var int idx;
+        let idx = Math.multiply(type, 16) + Math.multiply(rot, 4) + block;
+        let dx[idx] = x;
+        let dy[idx] = y;
+        return;
+    }
+
+    function int getDx(int type, int rot, int block) {
+        var int idx;
+        let idx = Math.multiply(type, 16) + Math.multiply(rot, 4) + block;
+        return dx[idx];
+    }
+
+    function int getDy(int type, int rot, int block) {
+        var int idx;
+        let idx = Math.multiply(type, 16) + Math.multiply(rot, 4) + block;
+        return dy[idx];
+    }
+}

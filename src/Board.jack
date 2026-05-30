@@ -1,0 +1,154 @@
+/**
+ * Игровое поле. Ячейка: 0=пусто, 1..7=тип+1.
+ */
+class Board {
+
+    field int width;
+    field int height;
+    field Array cells;
+
+    constructor Board new() {
+        let width = 10;
+        let height = 20;
+        let cells = Array.new(Math.multiply(width, height));
+        do clear();
+        return this;
+    }
+
+    method void dispose() {
+        do cells.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method int index(int col, int row) {
+        return Math.multiply(row, width) + col;
+    }
+
+    method void clear() {
+        var int i;
+        var int total;
+        let total = Math.multiply(width, height);
+        let i = 0;
+        while (i < total) {
+            let cells[i] = 0;
+            let i = i + 1;
+        }
+        return;
+    }
+
+    method int getCell(int col, int row) {
+        if (col < 0) {
+            return 1;
+        }
+        if (col > (width - 1)) {
+            return 1;
+        }
+        if (row < 0) {
+            return 0;
+        }
+        if (row > (height - 1)) {
+            return 1;
+        }
+        return cells[index(col, row)];
+    }
+
+    method void setCell(int col, int row, int value) {
+        let cells[index(col, row)] = value;
+        return;
+    }
+
+    method boolean fits(Piece piece) {
+        var int i;
+        var int col;
+        var int row;
+        let i = 0;
+        while (i < 4) {
+            let col = piece.getBlockCol(i);
+            let row = piece.getBlockRow(i);
+            if (~(getCell(col, row) = 0)) {
+                return false;
+            }
+            let i = i + 1;
+        }
+        return true;
+    }
+
+    method void lock(Piece piece) {
+        var int i;
+        var int col;
+        var int row;
+        var int stored;
+        let stored = piece.getType() + 1;
+        let i = 0;
+        while (i < 4) {
+            let col = piece.getBlockCol(i);
+            let row = piece.getBlockRow(i);
+            if ((~(col < 0)) & (col < width) & (~(row < 0)) & (row < height)) {
+                do setCell(col, row, stored);
+            }
+            let i = i + 1;
+        }
+        return;
+    }
+
+    method boolean isRowFull(int row) {
+        var int col;
+        let col = 0;
+        while (col < width) {
+            if (getCell(col, row) = 0) {
+                return false;
+            }
+            let col = col + 1;
+        }
+        return true;
+    }
+
+    method void dropRow(int fromRow) {
+        var int col;
+        var int row;
+        var int src;
+        var int dst;
+        let row = fromRow;
+        while (row > 0) {
+            let col = 0;
+            while (col < width) {
+                let src = index(col, row - 1);
+                let dst = index(col, row);
+                let cells[dst] = cells[src];
+                let col = col + 1;
+            }
+            let row = row - 1;
+        }
+        let col = 0;
+        while (col < width) {
+            let cells[index(col, 0)] = 0;
+            let col = col + 1;
+        }
+        return;
+    }
+
+    method int clearFullLines() {
+        var int row;
+        var int cleared;
+        let cleared = 0;
+        let row = height - 1;
+        while (~(row < 0)) {
+            if (isRowFull(row)) {
+                do dropRow(row);
+                let cleared = cleared + 1;
+            } else {
+                let row = row - 1;
+            }
+        }
+        return cleared;
+    }
+
+    method int getWidth() {
+        return width;
+    }
+
+    method int getHeight() {
+        return height;
+    }
+}

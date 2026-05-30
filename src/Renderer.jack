@@ -1,0 +1,443 @@
+/**
+ * Отрисовка поля + боковая панель справа.
+ */
+class Renderer {
+
+    static int CELL;
+    static int ORIGIN_X;
+    static int ORIGIN_Y;
+    static int BOARD_COLS;
+    static int BOARD_ROWS;
+    static int HUD_COL;
+    static int PANEL_X;
+    static int PANEL_Y;
+    static int PANEL_W;
+    static int PANEL_H;
+    static int PREVIEW_X;
+    static int PREVIEW_Y;
+    static int prevCol0;
+    static int prevRow0;
+    static int prevCol1;
+    static int prevRow1;
+    static int prevCol2;
+    static int prevRow2;
+    static int prevCol3;
+    static int prevRow3;
+    static boolean hasPrev;
+    static int shownNextType;
+    static int shownNameNow;
+    static int shownNameNext;
+
+    function void init() {
+        let CELL = 10;
+        let ORIGIN_X = 24;
+        let ORIGIN_Y = 18;
+        let BOARD_COLS = 10;
+        let BOARD_ROWS = 20;
+        let HUD_COL = 42;
+        let PANEL_X = 328;
+        let PANEL_Y = 10;
+        let PANEL_W = 175;
+        let PANEL_H = 235;
+        let PREVIEW_X = 358;
+        let PREVIEW_Y = 98;
+        let hasPrev = false;
+        let shownNextType = -1;
+        let shownNameNow = -1;
+        let shownNameNext = -1;
+        return;
+    }
+
+    function void drawSidePanel() {
+        var int x1;
+        var int y1;
+        var int x2;
+        var int y2;
+        let x1 = PANEL_X;
+        let y1 = PANEL_Y;
+        let x2 = PANEL_X + PANEL_W;
+        let y2 = PANEL_Y + PANEL_H;
+        do Screen.setColor(false);
+        do Screen.drawRectangle(x1, y1, x2, y2);
+        do Screen.setColor(true);
+        do Screen.drawRectangle(x1, y1, x2, y1);
+        do Screen.drawRectangle(x1, y2, x2, y2);
+        do Screen.drawRectangle(x1, y1, x1, y2);
+        do Screen.drawRectangle(x2, y1, x2, y2);
+        do Screen.drawRectangle(x1, y1 + 28, x2, y1 + 28);
+        do Screen.drawRectangle(x1, y1 + 88, x2, y1 + 88);
+        do Screen.drawRectangle(x1, y1 + 158, x2, y1 + 158);
+        return;
+    }
+
+    function void eraseCell(int col, int row) {
+        var int x1;
+        var int y1;
+        var int x2;
+        var int y2;
+        if (col < 0) {
+            return;
+        }
+        if (row < 0) {
+            return;
+        }
+        if (col > (BOARD_COLS - 1)) {
+            return;
+        }
+        if (row > (BOARD_ROWS - 1)) {
+            return;
+        }
+        let x1 = ORIGIN_X + Math.multiply(col, CELL);
+        let y1 = ORIGIN_Y + Math.multiply(row, CELL);
+        let x2 = x1 + CELL - 1;
+        let y2 = y1 + CELL - 1;
+        do Screen.setColor(false);
+        do Screen.drawRectangle(x1, y1, x2, y2);
+        return;
+    }
+
+    function void drawCell(int col, int row) {
+        var int x1;
+        var int y1;
+        var int x2;
+        var int y2;
+        if (col < 0) {
+            return;
+        }
+        if (row < 0) {
+            return;
+        }
+        if (col > (BOARD_COLS - 1)) {
+            return;
+        }
+        if (row > (BOARD_ROWS - 1)) {
+            return;
+        }
+        let x1 = ORIGIN_X + Math.multiply(col, CELL);
+        let y1 = ORIGIN_Y + Math.multiply(row, CELL);
+        let x2 = x1 + CELL - 1;
+        let y2 = y1 + CELL - 1;
+        do Screen.setColor(true);
+        do Screen.drawRectangle(x1, y1, x2, y2);
+        return;
+    }
+
+    function void drawBorder() {
+        var int x1;
+        var int y1;
+        var int x2;
+        var int y2;
+        let x1 = ORIGIN_X - 2;
+        let y1 = ORIGIN_Y - 2;
+        let x2 = ORIGIN_X + Math.multiply(BOARD_COLS, CELL) + 1;
+        let y2 = ORIGIN_Y + Math.multiply(BOARD_ROWS, CELL) + 1;
+        do Screen.setColor(true);
+        do Screen.drawRectangle(x1, y1, x2, y1);
+        do Screen.drawRectangle(x1, y2, x2, y2);
+        do Screen.drawRectangle(x1, y1, x1, y2);
+        do Screen.drawRectangle(x2, y1, x2, y2);
+        return;
+    }
+
+    function void clearPlayfield() {
+        do Screen.setColor(false);
+        do Screen.drawRectangle(ORIGIN_X, ORIGIN_Y, ORIGIN_X + Math.multiply(BOARD_COLS, CELL) - 1, ORIGIN_Y + Math.multiply(BOARD_ROWS, CELL) - 1);
+        return;
+    }
+
+    function void drawBoard(Board board) {
+        var int col;
+        var int row;
+        let row = 0;
+        while (row < BOARD_ROWS) {
+            let col = 0;
+            while (col < BOARD_COLS) {
+                if (~(board.getCell(col, row) = 0)) {
+                    do Renderer.drawCell(col, row);
+                }
+                let col = col + 1;
+            }
+            let row = row + 1;
+        }
+        return;
+    }
+
+    function void drawPiece(Piece piece) {
+        var int i;
+        var int col;
+        var int row;
+        let i = 0;
+        while (i < 4) {
+            let col = piece.getBlockCol(i);
+            let row = piece.getBlockRow(i);
+            do Renderer.drawCell(col, row);
+            let i = i + 1;
+        }
+        return;
+    }
+
+    function void drawNext(int type) {
+        var int i;
+        var int px;
+        var int py;
+        var int bx;
+        var int by;
+        var int bx1;
+        var int by1;
+        if (type = shownNextType) {
+            return;
+        }
+        let shownNextType = type;
+        let bx1 = PREVIEW_X - 4;
+        let by1 = PREVIEW_Y - 4;
+        do Screen.setColor(false);
+        do Screen.drawRectangle(bx1, by1, bx1 + 44, by1 + 44);
+        let i = 0;
+        while (i < 4) {
+            let bx = TetrominoData.getDx(type, 0, i);
+            let by = TetrominoData.getDy(type, 0, i);
+            let px = PREVIEW_X + Math.multiply(bx, 9);
+            let py = PREVIEW_Y + Math.multiply(by, 9);
+            do Screen.setColor(true);
+            do Screen.drawRectangle(px, py, px + 7, py + 7);
+            let i = i + 1;
+        }
+        return;
+    }
+
+    function void invalidateNext() {
+        let shownNextType = -1;
+        return;
+    }
+
+    function char typeLetter(int type) {
+        if (type = 0) {
+            return 73;
+        }
+        if (type = 1) {
+            return 79;
+        }
+        if (type = 2) {
+            return 84;
+        }
+        if (type = 3) {
+            return 83;
+        }
+        if (type = 4) {
+            return 90;
+        }
+        if (type = 5) {
+            return 74;
+        }
+        return 76;
+    }
+
+    function void showPieceNames(int nowType, int nextType) {
+        if ((nowType = shownNameNow) & (nextType = shownNameNext)) {
+            return;
+        }
+        let shownNameNow = nowType;
+        let shownNameNext = nextType;
+        do Renderer.clearHudRow(10);
+        do Output.moveCursor(10, HUD_COL);
+        do Output.printString("NOW  ");
+        do Output.printChar(Renderer.typeLetter(nowType));
+        do Renderer.clearHudRow(12);
+        do Output.moveCursor(12, HUD_COL);
+        do Output.printString("NEXT ");
+        do Output.printChar(Renderer.typeLetter(nextType));
+        return;
+    }
+
+    function boolean samePrev(Piece piece) {
+        if (~hasPrev) {
+            return false;
+        }
+        if (~(prevCol0 = piece.getBlockCol(0))) {
+            return false;
+        }
+        if (~(prevRow0 = piece.getBlockRow(0))) {
+            return false;
+        }
+        if (~(prevCol1 = piece.getBlockCol(1))) {
+            return false;
+        }
+        if (~(prevRow1 = piece.getBlockRow(1))) {
+            return false;
+        }
+        if (~(prevCol2 = piece.getBlockCol(2))) {
+            return false;
+        }
+        if (~(prevRow2 = piece.getBlockRow(2))) {
+            return false;
+        }
+        if (~(prevCol3 = piece.getBlockCol(3))) {
+            return false;
+        }
+        if (~(prevRow3 = piece.getBlockRow(3))) {
+            return false;
+        }
+        return true;
+    }
+
+    function void savePrev(Piece piece) {
+        let prevCol0 = piece.getBlockCol(0);
+        let prevRow0 = piece.getBlockRow(0);
+        let prevCol1 = piece.getBlockCol(1);
+        let prevRow1 = piece.getBlockRow(1);
+        let prevCol2 = piece.getBlockCol(2);
+        let prevRow2 = piece.getBlockRow(2);
+        let prevCol3 = piece.getBlockCol(3);
+        let prevRow3 = piece.getBlockRow(3);
+        let hasPrev = true;
+        return;
+    }
+
+    function void erasePrev(Board board) {
+        if (~hasPrev) {
+            return;
+        }
+        if (board.getCell(prevCol0, prevRow0) = 0) {
+            do Renderer.eraseCell(prevCol0, prevRow0);
+        }
+        if (board.getCell(prevCol1, prevRow1) = 0) {
+            do Renderer.eraseCell(prevCol1, prevRow1);
+        }
+        if (board.getCell(prevCol2, prevRow2) = 0) {
+            do Renderer.eraseCell(prevCol2, prevRow2);
+        }
+        if (board.getCell(prevCol3, prevRow3) = 0) {
+            do Renderer.eraseCell(prevCol3, prevRow3);
+        }
+        return;
+    }
+
+    function void initScene(Board board, Piece piece, int nextType) {
+        let shownNameNow = -1;
+        let shownNameNext = -1;
+        do Screen.clearScreen();
+        do Renderer.drawSidePanel();
+        do Renderer.clearPlayfield();
+        do Renderer.drawBorder();
+        do Renderer.drawBoard(board);
+        do Renderer.drawPiece(piece);
+        do Renderer.savePrev(piece);
+        do Renderer.invalidateNext();
+        do Renderer.drawNext(nextType);
+        do Renderer.drawHudStatic();
+        do Renderer.drawTitle();
+        do Renderer.drawCredit();
+        do Renderer.showPieceNames(piece.getType(), nextType);
+        return;
+    }
+
+    function void redrawBoard(Board board) {
+        do Renderer.clearPlayfield();
+        do Renderer.drawBoard(board);
+        let hasPrev = false;
+        return;
+    }
+
+    function void updatePiece(Board board, Piece piece) {
+        if (Renderer.samePrev(piece)) {
+            return;
+        }
+        do Renderer.erasePrev(board);
+        do Renderer.drawPiece(piece);
+        do Renderer.savePrev(piece);
+        return;
+    }
+
+    function void clearTextAt(int row, int col, int len) {
+        var int c;
+        do Output.moveCursor(row, col);
+        let c = 0;
+        while (c < len) {
+            do Output.printChar(32);
+            let c = c + 1;
+        }
+        return;
+    }
+
+    function void drawTitle() {
+        do Renderer.clearTextAt(0, 26, 12);
+        do Output.moveCursor(0, 26);
+        do Output.printString("== TETRIS ==");
+        return;
+    }
+
+    function void drawCredit() {
+        do Renderer.clearTextAt(21, 25, 13);
+        do Output.moveCursor(21, 25);
+        do Output.printString("by O.Voronina");
+        return;
+    }
+
+    function void clearHudRow(int row) {
+        var int c;
+        do Output.moveCursor(row, HUD_COL);
+        let c = 0;
+        while (c < 20) {
+            do Output.printChar(32);
+            let c = c + 1;
+        }
+        return;
+    }
+
+    function void drawHudStatic() {
+        do Renderer.clearHudRow(2);
+        do Output.moveCursor(2, HUD_COL);
+        do Output.printString("SCORE");
+        do Renderer.clearHudRow(4);
+        do Output.moveCursor(4, HUD_COL);
+        do Output.printString("LINES");
+        do Renderer.clearHudRow(6);
+        do Output.moveCursor(6, HUD_COL);
+        do Output.printString("LEVEL");
+        do Renderer.clearHudRow(9);
+        do Output.moveCursor(9, HUD_COL);
+        do Output.printString("-- NEXT --");
+        do Renderer.clearHudRow(16);
+        do Output.moveCursor(16, HUD_COL);
+        do Output.printString("-- KEYS --");
+        do Renderer.clearHudRow(17);
+        do Output.moveCursor(17, HUD_COL);
+        do Output.printString("< >  Move");
+        do Renderer.clearHudRow(18);
+        do Output.moveCursor(18, HUD_COL);
+        do Output.printString("^    Turn");
+        do Renderer.clearHudRow(19);
+        do Output.moveCursor(19, HUD_COL);
+        do Output.printString("v    Soft");
+        do Renderer.clearHudRow(20);
+        do Output.moveCursor(20, HUD_COL);
+        do Output.printString("Spc  Slam");
+        return;
+    }
+
+    function void showHud(int score, int lines, int level) {
+        do Renderer.clearHudRow(3);
+        do Output.moveCursor(3, HUD_COL);
+        do Output.printInt(score);
+        do Renderer.clearHudRow(5);
+        do Output.moveCursor(5, HUD_COL);
+        do Output.printInt(lines);
+        do Renderer.clearHudRow(7);
+        do Output.moveCursor(7, HUD_COL);
+        do Output.printInt(level);
+        return;
+    }
+
+    function void showGameOver(int score) {
+        do Renderer.clearHudRow(14);
+        do Output.moveCursor(14, HUD_COL);
+        do Output.printString("GAME OVER");
+        do Renderer.clearHudRow(15);
+        do Output.moveCursor(15, HUD_COL);
+        do Output.printInt(score);
+        do Renderer.clearHudRow(21);
+        do Output.moveCursor(21, HUD_COL);
+        do Output.printString("Q  Restart");
+        return;
+    }
+}
