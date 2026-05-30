@@ -2,6 +2,8 @@
 
 Классический **Тетрис** на языке Jack (курс [Nand2Tetris](https://www.nand2tetris.org/)).
 
+**Репозиторий:** https://github.com/lovesomemommy/jack-tetris-game
+
 ## Запуск
 
 1. Установите [nand2tetris](https://www.nand2tetris.org/software.php) (нужны `tools/JackCompiler.sh` и `tools/VMEmulator.sh`).
